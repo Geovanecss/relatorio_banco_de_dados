@@ -1,0 +1,153 @@
+-- questão 1
+select e.nome as "Nome do func", 
+        e.cpf as "CPF do func",
+        e.dataAdm as "Data entrada",
+        e.salario as "Salário",
+        e.Departamento_idDepartamento as "Departamento",
+        e.email as "Contato"
+from petshop.Empregado e
+join petshop.Departamento d on e.Departamento_idDepartamento = e.Departamento_idDepartamento
+where e.dataAdm between '2019-01-01' and '2022-03-31'
+order by e.dataAdm desc;
+
+-- questão 2
+select e.nome as "Nome do func", 
+        e.cpf as "CPF do func",
+        e.dataAdm as "Data entrada",
+        e.salario as "Salário",
+        e.Departamento_idDepartamento as "Departamento",
+        e.email as "Contato"
+from petshop.empregado e
+join petshop.departamento d ON e.Departamento_idDepartamento = d.idDepartamento
+where e.salario <(select avg(salario) from petshop.empregado) order by e.nome asc;
+
+-- questão 3
+select
+    d.nome as "Nome departamento",
+    count(e.cpf) as "Funcs",
+    avg(e.salario) as "Média salarial",
+    avg(e.comissao) as "Média comissão"
+from
+    petshop.departamento d
+left join 
+    petshop.empregado e on d.idDepartamento = e.Departamento_idDepartamento
+group by
+    d.nome
+order by 
+    d.nome asc;
+
+    
+-- questão 4
+select 
+	e.nome as "Nome Empregado",
+    e.cpf as "CPF Empregado",
+    e.sexo as "Sexo",
+    e.salario as "Salário",
+    count(pv.idVenda) as "Quantidade Vendas",
+    sum(pv.valor) as "Total Valor Vendido",
+    sum(pv.comissao) as "Média Comissão das Vendas"
+from
+    petshop.empregado e
+left join 
+    petshop.Venda pv on e.cpf = e.cpf
+group by
+    e.cpf, e.nome, e.sexo, e.salario
+order by
+    COUNT(pv.idVenda) desc;
+
+-- questão 5 
+  select
+    e.nome as Nome_Empregado,
+    e.cpf as CPF_Empregado,
+    e.sexo as Sexo,
+    e.salario as Salario,
+    count(v.idVenda) as Quantidade_Vendas_com_Servico,
+    sum(iserv.valor * iserv.quantidade) as Total_Valor_Vendido_com_Servico,
+    sum(coalesce(v.comissao, 0)) as Total_Comissao_das_Vendas_com_Servico
+from
+    petshop.Empregado e
+join 
+    petshop.itensServico iserv on e.cpf = iserv.Empregado_cpf
+join 
+    petshop.Venda v on iserv.Venda_idVenda = v.idVenda
+join
+    petshop.Servico s on iserv.Servico_idServico = s.idServico
+group by
+    e.nome, e.cpf, e.sexo, e.salario
+order by 
+    Quantidade_Vendas_com_Servico desc;
+
+
+-- questão 6
+select 
+	p.nome as nome_do_pet,
+    v.data as data_do_servico,
+    s.nome as nome_do_servico,
+    iserv.valor as valor,
+    e.nome as empregado_que_realizou
+from 
+	petshop.pet p
+join
+	petshop.itensservico iserv on p.idPET = iserv.PET_idPET
+join 
+	petshop.servico s on iserv.Servico_idServico = s.idServico
+join
+	petshop.venda v	on iserv.Venda_idVenda = v.idVenda
+join
+	petshop.empregado e on iserv.Empregado_cpf = e.cpf
+order by
+	data_do_servico desc;
+
+
+-- questão 7
+select 
+	v.data as data_venda,
+    v.valor as valor_venda,
+    v.desconto as desconto_venda,
+    (valor - desconto) AS valor_final,
+    v.Empregado_cpf as empregado_venda
+from 
+	petshop.venda v
+order by data_venda desc;
+
+-- questão 8
+select 
+	s.nome as nome_servico,
+    count(isv.Servico_idServico) as quantidade_venda,
+    sum(isv.valor * isv.quantidade) as total_valor_vendido
+from
+	petshop.itensservico isv
+join
+	petshop.servico s on isv.Servico_idServico = s.idServico
+group by
+	s.nome
+order by 
+	quantidade_venda desc limit 10;
+
+-- questão 9
+select 
+	f.tipo as forma_pagamento,
+	count(fp.Venda_idVenda) as quantidade_venda,
+    sum(fp.valorPago) as valor_pago
+from
+	petshop.formapgvenda fp
+join 
+	petshop.venda v on fp.Venda_idVenda = v.idVenda
+join
+	petshop.formapgvenda f on f.idFormaPgVenda = fp.idFormaPgVenda
+group by
+	f.tipo
+order by
+	quantidade_venda desc;
+
+-- questão 10
+select 
+	v.data as data_venda,
+    count(v.idvenda) as quantidade_venda,
+    sum(v.valor) as valor_total
+from
+	petshop.venda v
+group by
+v.data
+order by
+v.data desc;
